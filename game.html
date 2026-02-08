@@ -4,14 +4,12 @@
     <meta charset="UTF-8">
     <title>도트 눈 결정 찾기 - 게임 플레이</title>
     <style>
-        /* 1. 폰트 로드 (Galmuri9) */
         @font-face {
             font-family: 'Galmuri9';
             src: url('fonts/Galmuri9.ttf') format('truetype');
             font-weight: normal;
         }
 
-        /* 2. 전체 요소에 갈무리 폰트 적용 */
         * {
             image-rendering: pixelated;
             user-select: none;
@@ -24,7 +22,6 @@
             overflow: hidden; display: flex; height: 100vh; 
         }
 
-        /* 왼쪽 게임 영역 (2/3) */
         #game-area {
             position: relative;
             width: 66.66vw;
@@ -34,7 +31,6 @@
             overflow: hidden;
         }
 
-        /* 오른쪽 사이드 패널 (1/3) */
         #side-panel {
             width: 33.33vw;
             height: 100vh;
@@ -47,7 +43,6 @@
             padding: 30px 0;
         }
 
-        /* 상단 타이머 및 가이드 영역 */
         #top-ui {
             display: flex;
             flex-direction: column;
@@ -61,14 +56,12 @@
             font-weight: bold;
             margin-bottom: 20px;
             text-shadow: 0 0 10px rgba(0, 251, 255, 0.5);
-            /* 숫자에 갈무리 폰트가 잘 어울리도록 자간 조정 */
             letter-spacing: 2px;
         }
 
-        /* 정답 눈송이 전용 네모 칸 */
         #target-box {
-            width: 120px;
-            height: 120px;
+            width: 140px; /* 가이드 박스도 조금 키움 */
+            height: 140px;
             background: rgba(255, 255, 255, 0.1);
             border: 4px solid #00fbff;
             display: flex;
@@ -88,14 +81,13 @@
         }
 
         #target-snowflake-guide {
-            width: 80px;
-            height: 80px;
+            width: 100px;
+            height: 100px;
             background-size: contain;
             background-repeat: no-repeat;
             background-position: center;
         }
 
-        /* 하단 캐릭터 컨테이너 */
         #character-container {
             position: relative;
             width: 80%;
@@ -172,13 +164,15 @@
                 do { randomType = Math.floor(Math.random() * 4); } while (randomType === targetIndex);
                 this.type = randomType;
             }
-            this.size = 50; 
+            // 🌟 눈송이 크기를 80px로 키움
+            this.size = 80; 
             this.reset();
         }
         reset() {
             this.x = Math.random() * (gameArea.clientWidth - this.size);
             this.y = -Math.random() * gameArea.clientHeight;
-            this.speed = 1.8 + Math.random() * 2.2;
+            // 크기가 커진 만큼 속도를 살짝 조절 (선택 사항)
+            this.speed = 1.5 + Math.random() * 2.0;
         }
         update() {
             this.y += this.speed;
@@ -186,6 +180,7 @@
         }
         draw() {
             ctx.imageSmoothingEnabled = false;
+            // Math.floor를 사용하여 픽셀 뭉개짐 방지 유지
             ctx.drawImage(images[this.type], Math.floor(this.x), Math.floor(this.y), this.size, this.size);
         }
     }
@@ -207,7 +202,8 @@
         guideElement.style.backgroundImage = `url('${imgPaths[targetIndex]}')`;
         
         snowflakes = [];
-        for(let i=0; i<30; i++) snowflakes.push(new Snowflake(false));
+        // 눈송이가 커졌으므로 화면이 너무 꽉 차지 않게 개수를 20~25개로 조절해도 좋습니다.
+        for(let i=0; i<25; i++) snowflakes.push(new Snowflake(false));
         snowflakes.push(new Snowflake(true));
         
         gameActive = true;
@@ -234,6 +230,7 @@
 
         for (let i = snowflakes.length - 1; i >= 0; i--) {
             const s = snowflakes[i];
+            // 🌟 클릭 판정 범위도 커진 사이즈에 맞게 자동 적용됨
             if (mx > s.x && mx < s.x + s.size && my > s.y && my < s.y + s.size) {
                 if (s.isTarget) {
                     gameActive = false;
