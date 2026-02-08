@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <title>눈 결정 찾기 - 성공!</title>
     <style>
-        /* 1. 폰트 로드 */
         @font-face {
             font-family: 'DNFBitBit';
             src: url('fonts/DNFBitBitv2.ttf') format('truetype');
@@ -14,7 +13,6 @@
             src: url('fonts/Galmuri9.ttf') format('truetype');
         }
 
-        /* 2. 전체 기본 폰트 설정 */
         * { 
             image-rendering: pixelated; 
             user-select: none; 
@@ -35,29 +33,27 @@
             overflow: hidden;
         }
 
-        /* 성공 타이틀 (비트비트) */
         .success-title {
             font-family: 'DNFBitBit', sans-serif;
-            font-size: 4rem;
+            font-size: 3.5rem;
             color: #ffeb3b;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
             text-shadow: 4px 4px #000;
             animation: bounce 1s infinite;
         }
 
         @keyframes bounce {
             0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
+            50% { transform: scale(1.05); }
         }
 
-        /* 캐릭터 이미지 */
         #result-char {
-            width: 220px;
+            width: 200px;
             aspect-ratio: 928 / 1120;
             background-size: contain;
             background-repeat: no-repeat;
             background-position: center;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             filter: drop-shadow(0 0 15px rgba(0, 251, 255, 0.5));
             animation: float 3s ease-in-out infinite;
         }
@@ -67,19 +63,19 @@
             50% { transform: translateY(-15px); }
         }
 
-        /* 메세지 박스 (갈무리) */
         .message-box {
             background: white;
             color: #000;
-            padding: 25px 45px;
+            padding: 25px 40px;
             border-radius: 50px;
             position: relative;
             max-width: 80%;
-            font-size: 1.4rem;
+            font-size: 1.3rem;
             font-weight: bold;
             text-align: center;
             box-shadow: 0 5px 0 #ccc;
             word-break: keep-all;
+            margin-bottom: 40px;
         }
 
         .message-box::after {
@@ -93,32 +89,52 @@
             border-right: 20px solid transparent;
         }
 
-        /* 다시 시작 버튼 (갈무리) */
-        .btn-restart {
-            margin-top: 50px;
+        /* ⭐️ 하단 버튼 그룹 ⭐️ */
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .btn-action {
             background-color: #00fbff;
             color: #000;
             border: none;
-            padding: 15px 35px;
-            font-family: 'Galmuri9', sans-serif;
-            font-size: 1.2rem;
+            padding: 12px 30px;
+            font-size: 1.1rem;
             font-weight: bold;
             cursor: pointer;
             border-bottom: 5px solid #008a8c;
-            transition: 0.2s;
+            transition: 0.1s;
+            width: 280px;
+            text-align: center;
         }
 
-        .btn-restart:hover {
+        .btn-action:hover {
             background-color: #fff;
-            transform: scale(1.05);
+            transform: scale(1.02);
         }
 
-        /* 배경 축하 효과 */
+        .btn-action:active {
+            transform: translateY(3px);
+            border-bottom: 2px solid #008a8c;
+        }
+
+        .btn-share {
+            background-color: #ff4081; /* 공유 버튼은 다른 색상으로 강조 */
+            color: white;
+            border-bottom: 5px solid #c2185b;
+        }
+
+        .btn-share:hover {
+            background-color: #ff80ab;
+        }
+
         .star {
             position: absolute;
             background-color: #fff;
-            width: 4px;
-            height: 4px;
+            width: 4px; height: 4px;
             border-radius: 50%;
             animation: twinkle 1s infinite;
         }
@@ -131,14 +147,17 @@
 </head>
 <body>
 
-    <div class="success-title">찾았당!</div>
+    <div class="success-title">SUCCESS!</div>
 
     <div id="result-char"></div>
 
-    <div class="message-box" id="displayMessage">
-        </div>
+    <div class="message-box" id="displayMessage"></div>
 
-    <button class="btn-restart" onclick="location.href='index.html'">[ 다른 메세지를 전하고 싶나요? ]</button>
+    <div class="btn-group">
+        <button class="btn-action btn-share" onclick="shareResult()">이 메세지를 상대에게 공유해보세요</button>
+        
+        <button class="btn-action" onclick="location.href='index.html'">다른 메세지를 전하고 싶나요?</button>
+    </div>
 
 <script>
     window.onload = function() {
@@ -152,6 +171,20 @@
 
         createStars();
     };
+
+    // ⭐️ 공유 기능 스크립트 ⭐️
+    function shareResult() {
+        const message = document.getElementById('displayMessage').innerText;
+        const shareText = `[눈송이 편지] 당신에게 도착한 메세지: "${message}"\n지금 확인해보세요! \n${window.location.origin + window.location.pathname.replace('success.html', 'index.html')}`;
+
+        // 클립보드 복사 로직
+        navigator.clipboard.writeText(shareText).then(() => {
+            alert("공유 문구가 복사되었습니다! 상대방에게 전달해보세요.");
+        }).catch(err => {
+            console.error('복사 실패:', err);
+            alert("복사에 실패했습니다. 직접 메세지를 캡처해서 전달해보세요!");
+        });
+    }
 
     function createStars() {
         for (let i = 0; i < 50; i++) {
