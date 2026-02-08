@@ -5,23 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>도트 눈 결정 찾기 - 게임 플레이</title>
     <style>
-        @font-face {
-            font-family: 'Galmuri9';
-            src: url('fonts/Galmuri9.ttf') format('truetype');
-        }
+        @font-face { font-family: 'Galmuri9'; src: url('fonts/Galmuri9.ttf') format('truetype'); }
 
         * {
             image-rendering: pixelated;
             user-select: none;
-            -webkit-tap-highlight-color: transparent; /* 모바일 터치 시 파란 박스 제거 */
+            -webkit-tap-highlight-color: transparent;
             box-sizing: border-box;
             font-family: 'Galmuri9', sans-serif;
         }
 
-        body { 
-            margin: 0; padding: 0; background-color: #0b0e14; 
-            overflow: hidden; display: flex; height: 100vh; 
-        }
+        body { margin: 0; padding: 0; background-color: #0b0e14; overflow: hidden; display: flex; height: 100vh; }
 
         #game-area {
             position: relative;
@@ -42,80 +36,46 @@
             align-items: center;
             justify-content: space-between;
             border-left: 4px solid #2c2c54;
-            padding: 15px 5px; /* 패딩 소폭 조정 */
+            padding: 15px 5px;
         }
 
-        /* ⭐️ 모바일 대응 하트 컨테이너 ⭐️ */
-        #heart-container {
-            display: flex;
-            flex-wrap: wrap;    /* 화면 좁으면 줄바꿈 허용 */
-            justify-content: center;
-            gap: 3px;
-            margin-bottom: 10px;
-            width: 100%;        /* 부모 너비에 맞춤 */
-        }
+        #heart-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 3px; margin-bottom: 10px; width: 100%; }
+        .heart { font-size: 1.4rem; color: #ff4b2b; text-shadow: 1px 1px #000; }
+        .heart.lost { color: #444; text-shadow: none; }
 
-        .heart {
-            font-size: 1.4rem;  /* 모바일을 위해 크기 살짝 축소 */
-            color: #ff4b2b;
-            text-shadow: 1px 1px #000;
-        }
-
-        .heart.lost {
-            color: #444;
-            text-shadow: none;
-        }
-
-        #timer {
-            color: #00fbff;
-            font-size: 2.5rem; /* 모바일 대응 크기 축소 */
-            font-weight: bold;
-            margin-bottom: 10px;
-            text-shadow: 0 0 10px rgba(0, 251, 255, 0.5);
-        }
+        #timer { color: #00fbff; font-size: 2.5rem; font-weight: bold; margin-bottom: 10px; text-shadow: 0 0 10px rgba(0, 251, 255, 0.5); }
 
         #target-box {
-            width: 100px;  /* 모바일 대응 박스 크기 축소 */
-            height: 100px;
+            width: 100px; height: 100px;
             background: rgba(255, 255, 255, 0.1);
             border: 3px solid #00fbff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
             position: relative;
         }
 
         #target-box::before {
             content: 'TARGET';
-            position: absolute;
-            top: -20px;
-            left: 50%;
-            transform: translateX(-50%);
-            color: #00fbff;
-            font-size: 0.8rem;
-            font-weight: bold;
+            position: absolute; top: -20px; left: 50%; transform: translateX(-50%);
+            color: #00fbff; font-size: 0.8rem; font-weight: bold;
         }
 
-        #target-snowflake-guide {
-            width: 70px;
-            height: 70px;
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: center;
+        #goal-count {
+            margin-top: 10px;
+            color: #ffeb3b;
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-shadow: 1px 1px #000;
         }
+
+        #target-snowflake-guide { width: 70px; height: 70px; background-size: contain; background-repeat: no-repeat; background-position: center; }
 
         #character-container {
-            position: relative;
-            width: 90%;
-            aspect-ratio: 928 / 1120;
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: center;
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            background-color: rgba(0,0,0,0.2);
+            position: relative; width: 90%; aspect-ratio: 928 / 1120;
+            background-size: contain; background-repeat: no-repeat; background-position: center;
+            border: 2px solid rgba(255, 255, 255, 0.2); background-color: rgba(0,0,0,0.2);
         }
 
-        canvas { display: block; touch-action: none; } /* 모바일 스크롤 방지 */
+        canvas { display: block; touch-action: none; }
     </style>
 </head>
 <body>
@@ -131,11 +91,11 @@
             <div id="target-box" style="margin: 0 auto;">
                 <div id="target-snowflake-guide"></div>
             </div>
+            <div id="goal-count">찾은 개수: 0 / 2</div>
         </div>
 
         <div id="character-container"></div>
-        
-        <p style="color:#fff; font-weight:bold; margin-top: 10px; font-size: 0.9rem; text-align: center;">정답 클릭!</p>
+        <p style="color:#fff; font-weight:bold; margin-top: 10px; font-size: 0.9rem; text-align: center;">정답 눈송이를 2번 찾으세요!</p>
     </div>
 
 <script>
@@ -146,6 +106,7 @@
     const guideElement = document.getElementById('target-snowflake-guide');
     const charContainer = document.getElementById('character-container');
     const heartContainer = document.getElementById('heart-container');
+    const goalDisplay = document.getElementById('goal-count');
 
     const imgPaths = ['images/snowflake0.png', 'images/snowflake1.png', 'images/snowflake2.png', 'images/snowflake3.png'];
     const images = [];
@@ -154,6 +115,9 @@
     let timeLeft = 30;
     let lives = 7;
     let targetIndex = Math.floor(Math.random() * 4);
+    
+    let successCount = 0;
+    const requiredSuccess = 2;
 
     function initHearts() {
         heartContainer.innerHTML = '';
@@ -180,30 +144,50 @@
     }
 
     window.addEventListener('resize', resize);
-    // 모바일 방향 전환 시 대응
-    window.addEventListener('orientationchange', () => setTimeout(resize, 200));
 
     class Snowflake {
         constructor(isTarget) {
             this.isTarget = isTarget;
-            this.type = isTarget ? targetIndex : this.getRandomType();
+            this.updateType();
             this.size = 110; 
-            this.reset();
+            this.initPosition();
         }
-        getRandomType() {
-            let t;
-            do { t = Math.floor(Math.random() * 4); } while (t === targetIndex);
-            return t;
+
+        updateType() {
+            if (this.isTarget) {
+                this.type = targetIndex;
+            } else {
+                let t;
+                do { t = Math.floor(Math.random() * 4); } while (t === targetIndex);
+                this.type = t;
+            }
         }
+
+        initPosition() {
+            this.x = Math.random() * (gameArea.clientWidth - this.size);
+            // 🌟 정답 눈송이는 너무 깊은 곳에서 시작하지 않게 조정 (0 ~ -300 사이)
+            // 오답 눈송이는 화면을 채우기 위해 더 넓은 범위에서 시작 (-게임영역 높이까지)
+            const startLimit = this.isTarget ? -300 : -gameArea.clientHeight;
+            this.y = Math.random() * startLimit;
+
+            // 🌟 속도를 아주 느리게 유지하되, 정답은 최소 속도를 약간 더 주어 반드시 내려오게 함
+            const minSpeed = this.isTarget ? 0.6 : 0.4;
+            this.speed = minSpeed + Math.random() * 0.4;
+        }
+
         reset() {
             this.x = Math.random() * (gameArea.clientWidth - this.size);
-            this.y = -Math.random() * gameArea.clientHeight;
-            this.speed = 0.8 + Math.random() * 1.2;
+            this.y = -this.size; // 화면 바로 위에서 다시 시작
+            const minSpeed = this.isTarget ? 0.6 : 0.4;
+            this.speed = minSpeed + Math.random() * 0.4;
         }
+
         update() {
             this.y += this.speed;
+            // 화면 밖으로 나가면 다시 생성
             if (this.y > gameArea.clientHeight) this.reset();
         }
+
         draw() {
             ctx.drawImage(images[this.type], Math.floor(this.x), Math.floor(this.y), this.size, this.size);
         }
@@ -225,13 +209,23 @@
 
     function initGame() {
         initHearts();
-        guideElement.style.backgroundImage = `url('${imgPaths[targetIndex]}')`;
+        updateTarget();
         snowflakes = [];
+        // 오답 눈송이 15개
         for(let i=0; i<15; i++) snowflakes.push(new Snowflake(false));
+        // 🌟 정답 눈송이 1개 (항상 존재)
         snowflakes.push(new Snowflake(true));
+        
         gameActive = true;
         updateLoop();
         startTimer();
+    }
+
+    function updateTarget() {
+        targetIndex = Math.floor(Math.random() * 4);
+        guideElement.style.backgroundImage = `url('${imgPaths[targetIndex]}')`;
+        goalDisplay.innerText = `찾은 개수: ${successCount} / ${requiredSuccess}`;
+        snowflakes.forEach(s => s.updateType());
     }
 
     function updateLoop() {
@@ -241,13 +235,11 @@
         requestAnimationFrame(updateLoop);
     }
 
-    // 터치와 마우스 모두 대응
     function handleInput(e) {
         if (!gameActive) return;
         const rect = canvas.getBoundingClientRect();
         const clientX = e.touches ? e.touches[0].clientX : e.clientX;
         const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-        
         const mx = clientX - rect.left;
         const my = clientY - rect.top;
 
@@ -255,8 +247,14 @@
             const s = snowflakes[i];
             if (mx > s.x && mx < s.x + s.size && my > s.y && my < s.y + s.size) {
                 if (s.isTarget) {
-                    gameActive = false;
-                    window.location.href = 'success.html';
+                    successCount++;
+                    if (successCount >= requiredSuccess) {
+                        gameActive = false;
+                        window.location.href = 'success.html';
+                    } else {
+                        updateTarget();
+                        s.reset(); // 맞춘 후 다음 정답 눈송이 즉시 재생성
+                    }
                 } else {
                     lives--;
                     updateHearts();
@@ -269,10 +267,7 @@
     }
 
     canvas.addEventListener('mousedown', handleInput);
-    canvas.addEventListener('touchstart', (e) => {
-        e.preventDefault(); // 기본 터치 동작 방지
-        handleInput(e);
-    }, {passive: false});
+    canvas.addEventListener('touchstart', (e) => { e.preventDefault(); handleInput(e); }, {passive: false});
 
     function updateHearts() {
         const hearts = document.querySelectorAll('.heart');
