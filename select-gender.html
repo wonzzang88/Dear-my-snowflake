@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>눈 결정 찾기 - 캐릭터 선택</title>
+    <style>
+        /* 1. 폰트 로드 */
+        @font-face {
+            font-family: 'DNFBitBit';
+            src: url('fonts/DNFBitBitv2.ttf') format('truetype');
+        }
+        @font-face {
+            font-family: 'Galmuri9';
+            src: url('fonts/Galmuri9.ttf') format('truetype');
+        }
+
+        /* 2. 전체 기본 설정 */
+        * { 
+            margin: 0; padding: 0;
+            image-rendering: pixelated; 
+            user-select: none; 
+            box-sizing: border-box; 
+            font-family: 'Galmuri9', sans-serif;
+        }
+        
+        body {
+            background-color: #0b0e14;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            color: white;
+            /* 배경 이미지 설정 */
+            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('images/classroom.png') no-repeat center center;
+            background-size: cover;
+        }
+
+        /* 제목 영역 (비트비트) */
+        h2 {
+            font-family: 'DNFBitBit', sans-serif;
+            font-size: 2.8rem;
+            color: #00fbff;
+            margin-bottom: 50px;
+            text-shadow: 4px 4px #000;
+            letter-spacing: 2px;
+            z-index: 2;
+        }
+
+        .selection-container {
+            display: flex;
+            gap: 60px;
+            z-index: 2;
+        }
+
+        /* 캐릭터 카드 반투명 설정 */
+        .char-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            padding: 25px;
+            background: rgba(0, 0, 0, 0.7); /* 반투명 검은색 */
+            border-radius: 10px;
+            backdrop-filter: blur(4px);
+        }
+
+        .char-card:hover {
+            transform: scale(1.05);
+            background: rgba(0, 251, 255, 0.2);
+            border: 4px solid #00fbff;
+            box-shadow: 0 0 20px rgba(0, 251, 255, 0.4);
+        }
+
+        .char-img {
+            width: 200px;
+            aspect-ratio: 928 / 1120;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            margin-bottom: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            background-color: rgba(255,255,255,0.05);
+        }
+
+        #girl-img { background-image: url('images/girl.png'); }
+        #boy-img { background-image: url('images/boy.png'); }
+
+        .char-name {
+            font-size: 1.6rem;
+            font-weight: bold;
+            color: #fff;
+            letter-spacing: 1px;
+            text-shadow: 2px 2px #000;
+        }
+
+        /* 하단 뒤로 가기 버튼 */
+        .back-btn {
+            margin-top: 50px;
+            color: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+            cursor: pointer;
+            font-size: 1.1rem;
+            z-index: 2;
+            transition: color 0.2s;
+            text-shadow: 1px 1px #000;
+        }
+        
+        .back-btn:hover {
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>누구에게 전달할까요?</h2>
+
+    <div class="selection-container">
+        <div class="char-card" onclick="selectGender('girl')">
+            <div id="girl-img" class="char-img"></div>
+            <div class="char-name">GIRL</div>
+        </div>
+
+        <div class="char-card" onclick="selectGender('boy')">
+            <div id="boy-img" class="char-img"></div>
+            <div class="char-name">BOY</div>
+        </div>
+    </div>
+
+    <div class="back-btn" onclick="history.back()">[ 뒤로 가기 ]</div>
+
+<script>
+    function selectGender(gender) {
+        localStorage.setItem('selectedGender', gender);
+        window.location.href = 'input-message.html';
+    }
+</script>
+</body>
+</html>

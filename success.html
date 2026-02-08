@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>눈 결정 찾기 - 성공!</title>
+    <style>
+        /* 1. 폰트 로드 */
+        @font-face {
+            font-family: 'DNFBitBit';
+            src: url('fonts/DNFBitBitv2.ttf') format('truetype');
+        }
+        @font-face {
+            font-family: 'Galmuri9';
+            src: url('fonts/Galmuri9.ttf') format('truetype');
+        }
+
+        /* 2. 전체 기본 폰트 설정 */
+        * { 
+            image-rendering: pixelated; 
+            user-select: none; 
+            box-sizing: border-box; 
+            font-family: 'Galmuri9', sans-serif;
+        }
+        
+        body {
+            margin: 0; padding: 0;
+            background-color: #0b0e14;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            color: white;
+            background: linear-gradient(to bottom, #1a1a2e 0%, #0b0e14 100%);
+            overflow: hidden;
+        }
+
+        /* 성공 타이틀 (비트비트) */
+        .success-title {
+            font-family: 'DNFBitBit', sans-serif;
+            font-size: 4rem;
+            color: #ffeb3b;
+            margin-bottom: 20px;
+            text-shadow: 4px 4px #000;
+            animation: bounce 1s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        /* 캐릭터 이미지 */
+        #result-char {
+            width: 220px;
+            aspect-ratio: 928 / 1120;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            margin-bottom: 30px;
+            filter: drop-shadow(0 0 15px rgba(0, 251, 255, 0.5));
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        /* 메세지 박스 (갈무리) */
+        .message-box {
+            background: white;
+            color: #000;
+            padding: 25px 45px;
+            border-radius: 50px;
+            position: relative;
+            max-width: 80%;
+            font-size: 1.4rem;
+            font-weight: bold;
+            text-align: center;
+            box-shadow: 0 5px 0 #ccc;
+            word-break: keep-all;
+        }
+
+        .message-box::after {
+            content: '';
+            position: absolute;
+            bottom: -18px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-top: 20px solid white;
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+        }
+
+        /* 다시 시작 버튼 (갈무리) */
+        .btn-restart {
+            margin-top: 50px;
+            background-color: #00fbff;
+            color: #000;
+            border: none;
+            padding: 15px 35px;
+            font-family: 'Galmuri9', sans-serif;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            border-bottom: 5px solid #008a8c;
+            transition: 0.2s;
+        }
+
+        .btn-restart:hover {
+            background-color: #fff;
+            transform: scale(1.05);
+        }
+
+        /* 배경 축하 효과 */
+        .star {
+            position: absolute;
+            background-color: #fff;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            animation: twinkle 1s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="success-title">찾았당!</div>
+
+    <div id="result-char"></div>
+
+    <div class="message-box" id="displayMessage">
+        </div>
+
+    <button class="btn-restart" onclick="location.href='index.html'">[ 다른 메세지를 전하고 싶나요? ]</button>
+
+<script>
+    window.onload = function() {
+        const gender = localStorage.getItem('selectedGender') || 'girl';
+        const message = localStorage.getItem('userMessage') || '찾아줘서 고마워!';
+
+        const charDiv = document.getElementById('result-char');
+        charDiv.style.backgroundImage = `url('images/${gender}.png')`;
+
+        document.getElementById('displayMessage').innerText = message;
+
+        createStars();
+    };
+
+    function createStars() {
+        for (let i = 0; i < 50; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.style.left = Math.random() * 100 + 'vw';
+            star.style.top = Math.random() * 100 + 'vh';
+            star.style.animationDelay = Math.random() * 1 + 's';
+            document.body.appendChild(star);
+        }
+    }
+</script>
+</body>
+</html>

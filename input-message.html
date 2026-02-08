@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>눈 결정 찾기 - 메세지 입력</title>
+    <style>
+        /* 1. 폰트 로드 */
+        @font-face {
+            font-family: 'DNFBitBit';
+            src: url('fonts/DNFBitBitv2.ttf') format('truetype');
+        }
+        @font-face {
+            font-family: 'Galmuri9';
+            src: url('fonts/Galmuri9.ttf') format('truetype');
+        }
+
+        /* 2. 전체 기본 폰트를 갈무리로 설정 */
+        * { 
+            image-rendering: pixelated; 
+            user-select: none; 
+            box-sizing: border-box; 
+            font-family: 'Galmuri9', sans-serif;
+        }
+        
+        body {
+            margin: 0; padding: 0;
+            background-color: #0b0e14;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            color: white;
+            background: linear-gradient(to bottom, #0b0e14 0%, #1a1a2e 100%);
+        }
+
+        .input-container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 50px 40px;
+            border: 4px solid #fff;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+
+        /* 3. 제목에 비트비트 적용 */
+        h2 {
+            font-family: 'DNFBitBit', sans-serif;
+            font-size: 2.2rem;
+            color: #00fbff;
+            margin-bottom: 35px;
+            text-shadow: 3px 3px #000;
+            letter-spacing: 2px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.2rem;
+            font-family: 'Galmuri9', sans-serif; /* 입력창 갈무리 적용 */
+            background: #000;
+            border: 2px solid #555;
+            color: #fff;
+            margin-bottom: 35px;
+            outline: none;
+            text-align: center;
+        }
+
+        input[type="text"]:focus {
+            border-color: #00fbff;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .action-btn {
+            padding: 15px 30px;
+            font-family: 'Galmuri9', sans-serif; /* 버튼 갈무리 적용 */
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            transition: 0.2s;
+        }
+
+        .next-btn {
+            background-color: #00fbff;
+            color: #000;
+            border-bottom: 4px solid #008a8c;
+        }
+
+        .next-btn:hover {
+            background-color: #5fffff;
+            transform: translateY(-2px);
+        }
+
+        .back-btn {
+            background-color: #555;
+            color: #fff;
+            border-bottom: 4px solid #333;
+        }
+
+        .back-btn:hover {
+            background-color: #777;
+        }
+
+        .hint {
+            margin-top: 25px;
+            font-size: 1rem;
+            color: #aaa;
+            letter-spacing: 0.5px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="input-container">
+        <h2>전하고 싶은 말</h2>
+        <input type="text" id="userMessage" placeholder="메세지를 입력하세요..." maxlength="20">
+        
+        <div class="btn-group">
+            <button class="action-btn back-btn" onclick="history.back()">뒤로 가기</button>
+            <button class="action-btn next-btn" onclick="saveMessage()">게임 시작</button>
+        </div>
+
+        <p class="hint">눈송이를 찾으면 이 메세지가 전달됩니다.</p>
+    </div>
+
+<script>
+    window.onload = function() {
+        const savedMsg = localStorage.getItem('userMessage');
+        if (savedMsg) {
+            document.getElementById('userMessage').value = savedMsg;
+        }
+    };
+
+    function saveMessage() {
+        const msgInput = document.getElementById('userMessage').value;
+        const finalMsg = msgInput.trim() === "" ? "찾아줘서 고마워!" : msgInput;
+        localStorage.setItem('userMessage', finalMsg);
+        window.location.href = 'game.html';
+    }
+
+    document.getElementById('userMessage').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+            saveMessage();
+        }
+    });
+</script>
+</body>
+</html>
