@@ -2,6 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>도트 눈 결정 찾기 - 게임 플레이</title>
     <style>
         @font-face {
@@ -12,6 +13,7 @@
         * {
             image-rendering: pixelated;
             user-select: none;
+            -webkit-tap-highlight-color: transparent; /* 모바일 터치 시 파란 박스 제거 */
             box-sizing: border-box;
             font-family: 'Galmuri9', sans-serif;
         }
@@ -40,42 +42,44 @@
             align-items: center;
             justify-content: space-between;
             border-left: 4px solid #2c2c54;
-            padding: 20px 0;
+            padding: 15px 5px; /* 패딩 소폭 조정 */
         }
 
-        /* 하트 컨테이너 스타일 */
+        /* ⭐️ 모바일 대응 하트 컨테이너 ⭐️ */
         #heart-container {
             display: flex;
-            gap: 5px;
+            flex-wrap: wrap;    /* 화면 좁으면 줄바꿈 허용 */
+            justify-content: center;
+            gap: 3px;
             margin-bottom: 10px;
+            width: 100%;        /* 부모 너비에 맞춤 */
         }
 
         .heart {
-            font-size: 2rem;
-            color: #ff4b2b; /* 활성화된 하트 색상 */
-            text-shadow: 2px 2px #000;
+            font-size: 1.4rem;  /* 모바일을 위해 크기 살짝 축소 */
+            color: #ff4b2b;
+            text-shadow: 1px 1px #000;
         }
 
         .heart.lost {
-            color: #444; /* 잃어버린 하트 색상 */
+            color: #444;
             text-shadow: none;
         }
 
         #timer {
             color: #00fbff;
-            font-size: 3rem;
+            font-size: 2.5rem; /* 모바일 대응 크기 축소 */
             font-weight: bold;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             text-shadow: 0 0 10px rgba(0, 251, 255, 0.5);
         }
 
         #target-box {
-            width: 150px;
-            height: 150px;
+            width: 100px;  /* 모바일 대응 박스 크기 축소 */
+            height: 100px;
             background: rgba(255, 255, 255, 0.1);
-            border: 4px solid #00fbff;
+            border: 3px solid #00fbff;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
             position: relative;
@@ -84,15 +88,17 @@
         #target-box::before {
             content: 'TARGET';
             position: absolute;
-            top: -25px;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
             color: #00fbff;
-            font-size: 1rem;
+            font-size: 0.8rem;
             font-weight: bold;
         }
 
         #target-snowflake-guide {
-            width: 110px;
-            height: 110px;
+            width: 70px;
+            height: 70px;
             background-size: contain;
             background-repeat: no-repeat;
             background-position: center;
@@ -100,16 +106,16 @@
 
         #character-container {
             position: relative;
-            width: 70%;
+            width: 90%;
             aspect-ratio: 928 / 1120;
             background-size: contain;
             background-repeat: no-repeat;
             background-position: center;
-            border: 4px solid rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.2);
             background-color: rgba(0,0,0,0.2);
         }
 
-        canvas { display: block; }
+        canvas { display: block; touch-action: none; } /* 모바일 스크롤 방지 */
     </style>
 </head>
 <body>
@@ -119,18 +125,17 @@
     </div>
 
     <div id="side-panel">
-        <div id="top-ui" style="text-align: center;">
-            <div id="heart-container">
-                </div>
+        <div id="top-ui" style="text-align: center; width: 100%;">
+            <div id="heart-container"></div>
             <div id="timer">30</div>
-            <div id="target-box">
+            <div id="target-box" style="margin: 0 auto;">
                 <div id="target-snowflake-guide"></div>
             </div>
         </div>
 
         <div id="character-container"></div>
         
-        <p style="color:#fff; font-weight:bold; margin-bottom: 20px; font-size: 1.2rem;">똑같은 눈송이를 찾으세요!</p>
+        <p style="color:#fff; font-weight:bold; margin-top: 10px; font-size: 0.9rem; text-align: center;">정답 클릭!</p>
     </div>
 
 <script>
@@ -147,10 +152,9 @@
     let snowflakes = [];
     let gameActive = false;
     let timeLeft = 30;
-    let lives = 7; // 총 생명 7개
+    let lives = 7;
     let targetIndex = Math.floor(Math.random() * 4);
 
-    // 하트 생성 함수
     function initHearts() {
         heartContainer.innerHTML = '';
         for (let i = 0; i < 7; i++) {
@@ -161,7 +165,6 @@
         }
     }
 
-    // 캐릭터 설정
     const selectedGender = localStorage.getItem('selectedGender') || 'girl';
     charContainer.style.backgroundImage = `url('images/${selectedGender}.png')`;
 
@@ -177,24 +180,25 @@
     }
 
     window.addEventListener('resize', resize);
+    // 모바일 방향 전환 시 대응
+    window.addEventListener('orientationchange', () => setTimeout(resize, 200));
 
     class Snowflake {
         constructor(isTarget) {
             this.isTarget = isTarget;
-            if (this.isTarget) {
-                this.type = targetIndex;
-            } else {
-                let randomType;
-                do { randomType = Math.floor(Math.random() * 4); } while (randomType === targetIndex);
-                this.type = randomType;
-            }
-            this.size = 110; // 🌟 더 크게 키움
+            this.type = isTarget ? targetIndex : this.getRandomType();
+            this.size = 110; 
             this.reset();
+        }
+        getRandomType() {
+            let t;
+            do { t = Math.floor(Math.random() * 4); } while (t === targetIndex);
+            return t;
         }
         reset() {
             this.x = Math.random() * (gameArea.clientWidth - this.size);
             this.y = -Math.random() * gameArea.clientHeight;
-            this.speed = 0.8 + Math.random() * 1.2; // 🌟 속도를 더 느리게 조절
+            this.speed = 0.8 + Math.random() * 1.2;
         }
         update() {
             this.y += this.speed;
@@ -205,7 +209,6 @@
         }
     }
 
-    // 이미지 로드
     let loadedCount = 0;
     imgPaths.forEach((src, i) => {
         const img = new Image();
@@ -238,37 +241,41 @@
         requestAnimationFrame(updateLoop);
     }
 
-    canvas.addEventListener('mousedown', (e) => {
+    // 터치와 마우스 모두 대응
+    function handleInput(e) {
         if (!gameActive) return;
         const rect = canvas.getBoundingClientRect();
-        const mx = e.clientX - rect.left;
-        const my = e.clientY - rect.top;
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        
+        const mx = clientX - rect.left;
+        const my = clientY - rect.top;
 
-        let hitAny = false;
         for (let i = snowflakes.length - 1; i >= 0; i--) {
             const s = snowflakes[i];
             if (mx > s.x && mx < s.x + s.size && my > s.y && my < s.y + s.size) {
-                hitAny = true;
                 if (s.isTarget) {
                     gameActive = false;
                     window.location.href = 'success.html';
                 } else {
-                    // 틀렸을 때 로직
                     lives--;
                     updateHearts();
-                    s.reset(); // 틀린 눈송이는 위치 리셋
-                    if (lives <= 0) {
-                        gameOver("더 자세히 봐야지!");
-                    }
+                    s.reset();
+                    if (lives <= 0) gameOver("기회를 모두 소진했습니다!");
                 }
                 break;
             }
         }
-    });
+    }
+
+    canvas.addEventListener('mousedown', handleInput);
+    canvas.addEventListener('touchstart', (e) => {
+        e.preventDefault(); // 기본 터치 동작 방지
+        handleInput(e);
+    }, {passive: false});
 
     function updateHearts() {
         const hearts = document.querySelectorAll('.heart');
-        // 뒤에서부터 하트를 끕니다
         const targetHeart = hearts[7 - (lives + 1)];
         if (targetHeart) targetHeart.classList.add('lost');
     }
@@ -284,12 +291,9 @@
             if (!gameActive) { clearInterval(counter); return; }
             timeLeft--;
             timerDisplay.innerText = timeLeft;
-            if (timeLeft <= 0) {
-                gameOver("시간 초과! 눈송이 찾기 실패!");
-            }
+            if (timeLeft <= 0) gameOver("시간 초과! 실패!");
         }, 1000);
     }
 </script>
 </body>
 </html>
-
